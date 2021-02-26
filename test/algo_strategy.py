@@ -5,6 +5,8 @@ import warnings
 from sys import maxsize
 import json
 
+import unit_locations as ul
+
 
 """
 Most of the algo code you write will be in this file unless you create new
@@ -25,45 +27,11 @@ class AlgoStrategy(gamelib.AlgoCore):
         # seed = random.randrange(maxsize)
         # random.seed(seed)
         # gamelib.debug_write('Random seed: {}'.format(seed))
-
-        self.primary_wall_locations = [
-                          [4, 12], [5, 12], [3, 12], # left turret front
-                          [23, 12], [22, 12], [24, 12], # right turret front
-                          # center wall
-                          [6, 11], [7, 10], [8, 9], [9, 9], [10, 9], [11, 9], [12, 9], [13, 9],
-                          [14, 9], [15, 9], [16, 9], [17, 9], [18, 9], [19, 9], [20, 10], [21, 11],
-
-                          [0, 13], [1, 12], # left corner partial
-                          [27, 13], [26, 12], # right corner partial
-                         ]
-
-        self.primary_turret_locations = [[4, 11], [23, 11]]
-
-        self.primary_upgrade_priority = [
-                                    [4, 11], [23, 11], # primary turrets
-                                    # primary walls in front of turrets, alternating
-                                    [4, 12], [23, 12],
-                                    [5, 12], [22, 12],
-                                    [3, 12], [24, 12],
-                                   ]
-
-        self.secondary_turret_locations = [[5, 11], [22, 11]]
-
-        self.secondary_wall_locations = [[1, 13], # left corner third wall
-                                         [26, 13] # right corner third wall
-                                         ]
-
-        self.secondary_upgrade_priority = [
-                                      [5, 11], [22, 11], # secondary turrets
-                                      # corner walls
-                                      [1, 13], [26, 13],
-                                      [0, 13], [27, 13],
-                                      [1, 12], [26, 12]]
-
-        self.tertiary_support_locations = [[13, 8], [14, 8]
-                                            #[13, 7], [14, 7]
-                                            ]
-
+        self.mode = 'basic'
+        self.offense = 'off'
+        self.offense_sp_threshold = 10
+        self.offense_mp_threshold = 10 + randint(1, 15)
+        self.adv_convert_sp_threshold = 90
 
     def on_game_start(self, config):
         """
@@ -104,14 +72,40 @@ class AlgoStrategy(gamelib.AlgoCore):
 
         if game_state.turn_number == 0:
             self.first_turn_strategy(game_state)
+            self.spawn_offense(game_state)
 
-        else:
+        elif self.mode == 'basic':
             # defense
             self.maintain_defense(game_state)
             self.remove_damaged_structures(game_state)
 
             # offense
             self.spawn_offense(game_state)
+
+        elif self.mode == 'advanced':
+            # defense
+            self.adv_maintain_defense(game_state)
+            self.remove_damaged_structures(game_state)
+
+            current_SP = game_state.get_resource(0)
+            current_MP = game_state.get_resource(1)
+
+            # offense
+            if self.offense != 'off':
+                self.adv_toggle_offense(game_state)
+                if self.offense == 'ready':
+                    self.adv_spawn_offense(game_state)
+            elif current_MP > self.offense_mp_threshold and current_SP > self.offense_sp_threshold and self.offense == 'off':
+                # reset the mp threshold to something random between 11 and 25
+                self.offense_mp_threshold = 10 + randint(1, 15)
+                self.adv_toggle_offense(game_state)
+
+
+        total_sp = self.SP_FUNCTION(game_state)
+        if if total_sp > self.adv_convert_sp_threshold:
+            self.REMOVE_FUNCTION(game_state)
+            self.mode = 'advanced'
+
 
 
 
@@ -139,30 +133,43 @@ class AlgoStrategy(gamelib.AlgoCore):
     def maintain_defense(self, game_state):
         # actions and locations are ordered in priority from highest to lowest for available SP resources
         # locations defined in on_game_start
-        game_state.attempt_spawn(WALL, self.primary_wall_locations)
-        game_state.attempt_spawn(TURRET, self.primary_turret_locations)
-        game_state.attempt_upgrade(self.primary_upgrade_priority)
-        game_state.attempt_spawn(TURRET, self.secondary_turret_locations)
-        game_state.attempt_spawn(WALL, self.secondary_wall_locations)
-        game_state.attempt_upgrade(self.secondary_upgrade_priority)
+        game_state.attempt_spawn(WALL, ul.primary_wall_locations)
+        game_state.attempt_spawn(TURRET, ul.primary_turret_locations)
+        game_state.attempt_upgrade(ul.primary_upgrade_priority)
+        game_state.attempt_spawn(TURRET, ul.secondary_turret_locations)
+        game_state.attempt_spawn(WALL, ul.secondary_wall_locations)
+        game_state.attempt_upgrade(ul.secondary_upgrade_priority)
 
-        for location in self.tertiary_support_locations:
+        for location in ul.tertiary_support_locations:
             game_state.attempt_spawn(SUPPORT, [location])
             game_state.attempt_upgrade([location])
 
     def remove_damaged_structures(self, game_state):
-        all_locations = self.primary_wall_locations + self.primary_turret_locations + self.secondary_turret_locations + self.secondary_wall_locations + self.tertiary_support_locations
+        if self.mode == 'basic':
+            all_locations = ul.primary_wall_locations + ul.primary_turret_locations + ul.secondary_turret_locations + ul.secondary_wall_locations + ul.tertiary_support_locations
+        else:
+            all_locations = ul.adv_primary_wall_locations + ul.adv_primary_turret_locations + ul.adv_secondary_wall_locations + ul.adv_support_locations
 
         damaged_locations = []
         for location in all_locations:
             unit = game_state.game_map[location[0], location[1]]
             if unit:
                 if unit[0].health < unit[0].max_health*0.75 and unit[0].health != 60 and unit[0].health != 1:
-                    gamelib.debug_write(str(unit[0].health) + ', ' + str(unit[0].max_health))
                     damaged_locations.append(location)
 
         if damaged_locations:
             game_state.attempt_remove(damaged_locations)
+
+    def adv_maintain_defense(self, game_state):
+        game_state.attempt_spawn(WALL, ul.adv_primary_wall_locations)
+        game_state.attempt_spawn(TURRET, ul.adv_primary_turret_locations)
+        game_state.attempt_upgrade(ul.adv_primary_turret_locations)
+        game_state.attempt_spawn(WALL, ul.adv_secondary_wall_locations)
+        game_state.attempt_upgrade(ul.adv_upgrade_priority)
+        for location in ul.adv_support_locations:
+            game_state.attempt_spawn(SUPPORT, location)
+            game_state.attempt_upgrade(location)
+
 
 
 
@@ -191,6 +198,23 @@ class AlgoStrategy(gamelib.AlgoCore):
             game_state.attempt_spawn(SCOUT, location_L1, 100)
         else:
             game_state.attempt_spawn(SCOUT, location_R1, 100)
+
+
+    def adv_spawn_offense(self, game_state):
+        game_state.attempt_spawn(SCOUT, [5, 8], 100)
+
+
+    def adv_toggle_offense(self, game_state):
+        if self.offense == 'off':
+            game_state.attempt_remove(ul.adv_offensive_config_removal)
+            self.offense = 'preparing'
+        elif self.offense == 'preparing':
+            game_state.attempt_spawn(WALL, ul.adv_offensive_config_addition)
+            self.offense = 'ready'
+        elif self.offense == 'ready':
+            game_state.attempt_remove(ul.adv_offensive_config_addition)
+            game_state.attempt_spawn(WALL, ul.adv_offensive_config_removal)
+            self.offense = 'off'
 
     # def starter_strategy(self, game_state):
     #     """
