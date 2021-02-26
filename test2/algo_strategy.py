@@ -32,6 +32,17 @@ class AlgoStrategy(gamelib.AlgoCore):
         self.offense_sp_threshold = 10
         self.offense_mp_threshold = 10 + random.randint(1, 15)
         self.adv_convert_sp_threshold = 90
+        self.basic_convert_sp_threshold = 70
+
+        self.sp_savings = 10
+        self.sp_projection = 0
+
+
+        self.all_locations = []
+        for x in range(28):
+            for y in range(14):
+                if x >= 13-y and x <= 14 + y:
+                    self.all_locations.append([x, y])
 
     def on_game_start(self, config):
         """
@@ -86,6 +97,7 @@ class AlgoStrategy(gamelib.AlgoCore):
             # defense
             self.adv_maintain_defense(game_state)
             self.remove_damaged_structures(game_state)
+            self.adv_maintain_secondary_defense(game_state)
 
             current_SP = game_state.get_resource(0)
             current_MP = game_state.get_resource(1)
@@ -96,10 +108,12 @@ class AlgoStrategy(gamelib.AlgoCore):
                 if self.offense == 'ready':
                     self.adv_spawn_offense(game_state)
 
+            # offense
             elif current_MP > self.offense_mp_threshold and current_SP > self.offense_sp_threshold and self.offense == 'off':
                 # reset the mp threshold to something random between 11 and 25
-                self.offense_mp_threshold = 10 + random.randint(1, 15)
+                self.offense_mp_threshold = 10 + random.randint(1, 15) + game_state.turn_number//5
                 self.adv_toggle_offense(game_state)
+
 
 
         # total_SP: a function that returns the total SP obtained if every structure is refunded
@@ -110,13 +124,17 @@ class AlgoStrategy(gamelib.AlgoCore):
             self.refund_all(game_state)
             self.mode = 'advanced'
 
+        if self.mode == 'advanced' and total_sp < self.basic_convert_sp_threshold:
+            self.refund_all(game_state)
+            self.mode = 'basic'
+
 
     ##############################
     ########## TURN ONE ##########
     ##############################
     def first_turn_strategy(self, game_state):
         starting_wall_locations = [[0, 13], [1, 12], [3, 12], [4, 12], [5, 12], [6, 11], [7, 10], [8, 9],
-                                        [9, 9], [10, 9], [11, 9], [12, 9], [13, 9], [14, 9], [15, 9], [16, 9], [17, 9], [18, 9], [19, 9],
+                                        [9, 8], [10, 8], [11, 8], [12, 8], [13, 8], [14, 8], [15, 8], [16, 8], [17, 8], [18, 8], [19, 9],
                                         [20, 10], [21, 11], [22, 12], [23, 12], [24, 12], [26, 12], [27, 13]]
 
         starting_turret_locations = [[4, 11], [23, 11]]
@@ -145,13 +163,8 @@ class AlgoStrategy(gamelib.AlgoCore):
             game_state.attempt_upgrade([location])
 
     def remove_damaged_structures(self, game_state):
-        if self.mode == 'basic':
-            all_locations = ul.primary_wall_locations + ul.primary_turret_locations + ul.secondary_turret_locations + ul.secondary_wall_locations + ul.tertiary_support_locations
-        else:
-            all_locations = ul.adv_primary_wall_locations + ul.adv_primary_turret_locations + ul.adv_secondary_wall_locations + ul.adv_support_locations
-
         damaged_locations = []
-        for location in all_locations:
+        for location in self.all_locations:
             unit = game_state.game_map[location[0], location[1]]
             if unit:
                 if unit[0].health < unit[0].max_health*0.75 and unit[0].health != 60 and unit[0].health != 1:
@@ -167,7 +180,7 @@ class AlgoStrategy(gamelib.AlgoCore):
             game_state.attempt_upgrade(ul.adv_primary_turret_locations)
             game_state.attempt_spawn(WALL, ul.adv_secondary_wall_locations)
             game_state.attempt_upgrade(ul.adv_upgrade_priority)
-            for location in ul.adv_support_locations:
+            for location in ul.adv_primary_support_locations:
                 game_state.attempt_spawn(SUPPORT, location)
                 game_state.attempt_upgrade(location)
 
@@ -176,9 +189,44 @@ class AlgoStrategy(gamelib.AlgoCore):
             game_state.attempt_spawn(TURRET, ul.adv_primary_turret_locations)
             game_state.attempt_upgrade(ul.adv_primary_turret_locations)
             game_state.attempt_upgrade(ul.adv_upgrade_priority)
-            for location in ul.adv_support_locations:
+            for location in ul.adv_primary_support_locations:
                 game_state.attempt_spawn(SUPPORT, location)
                 game_state.attempt_upgrade(location)
+
+    def adv_maintain_secondary_defense(self, game_state):
+        self.sp_projection = game_state.get_resource(0)
+
+        for location in ul.adv_secondary_turret_locations:
+            action_if_affordable(game_state, (TURRET, 'build'), location)
+            action_if_affordable(game_state, (TURRET, 'upgrade'), location)
+            # affordable, cost = affordable_SP(game_state, ('turret', 'build'), self.sp_savings)
+            # if affordable:
+            #     game_state.attempt_spawn(TURRET, location)
+            #     self.sp_projection -= cost
+            # affordable, cost = affordable_SP(game_state, ('turret', 'upgrade'), self.sp_savings)
+            # if affordable:
+            #     game_state.attempt_upgrade(location)
+            #     self.sp_projection -= cost
+        for location in ul.adv_secondary_upgrade_priority:
+            action_if_affordable(game_state, (WALL, 'upgrade'), location)
+            # affordable, cost = affordable_SP(game_state, ('wall', 'upgrade'), self.sp_savings)
+            # if affordable:
+            #     game_state.attempt_upgrade(location)
+            #     self.sp_projection -= cost
+        for location in ul.adv_secondary_support_locations:
+            action_if_affordable(game_state, (SUPPORT, 'build'), location)
+            action_if_affordable(game_state, (SUPPORT, 'upgrade'), location)
+            # affordable, cost = affordable_SP(game_state, ('support', 'build'), self.sp_savings)
+            # if affordable:
+            #     game_state.attempt_spawn(TURRET, location)
+            #     self.sp_projection -= cost
+            # affordable, cost = affordable_SP(game_state, ('support', 'upgrade'), self.sp_savings)
+            # if affordable:
+            #     game_state.attempt_upgrade(location)
+            #     self.sp_projection -= cost
+
+
+
 
 
 
@@ -233,12 +281,12 @@ class AlgoStrategy(gamelib.AlgoCore):
 	# Compute total SP if all structure refunded
     def total_SP(self, game_state):
         current = game_state.get_resource(SP)
-        if self.mode == 'basic':
-            all_locations = ul.primary_wall_locations + ul.primary_turret_locations + ul.secondary_turret_locations + ul.secondary_wall_locations + ul.tertiary_support_locations
-        else:
-            all_locations = ul.adv_primary_wall_locations + ul.adv_primary_turret_locations + ul.adv_secondary_wall_locations + ul.adv_support_locations
+        # if self.mode == 'basic':
+        #     all_locations = ul.primary_wall_locations + ul.primary_turret_locations + ul.secondary_turret_locations + ul.secondary_wall_locations + ul.tertiary_support_locations
+        # else:
+        #     all_locations = ul.adv_primary_wall_locations + ul.adv_primary_turret_locations + ul.adv_secondary_wall_locations + ul.adv_support_locations
         refund = 0
-        for location in all_locations:
+        for location in self.all_locations:
             unit = game_state.game_map[location[0],location[1]]
             if unit:
                 if unit[0].upgraded:
@@ -249,10 +297,38 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 	# Refund all units
-    def refund_all(self,game_state):
-        all_locations = ul.primary_wall_locations + ul.primary_turret_locations + ul.secondary_turret_locations + ul.secondary_wall_locations + ul.tertiary_support_locations
+    def refund_all(self, game_state):
+        # all_locations = ul.primary_wall_locations + ul.primary_turret_locations + ul.secondary_turret_locations + ul.secondary_wall_locations + ul.tertiary_support_locations
         game_state.attempt_remove(all_locations)
 
+    # compute SP after an action
+    # action type: (UNIT, ACTION) e.g. ('turret', 'upgrade') or ('wall', 'build')
+    def affordable_SP(self, game_state, action_type, sp_savings):
+        if action_type[1] == 'build':
+            if action_type[0] == 'wall' or action_type[0] == WALL:
+                cost = 1
+            elif action_type[0] == 'turret' or action_type[0] == TURRET:
+                cost = 2
+            elif action_type[0] == 'support' or action_type[0] == TURRET:
+                cost = 4
+        elif action_type[1] == 'upgrade':
+            if action_type[0] == 'wall' or action_type[0] == WALL:
+                cost = 2
+            elif action_type[0] == 'turret' or action_type[0] == TURRET:
+                cost = 4
+            elif action_type[0] == 'support' or action_type[0] == TURRET:
+                cost = 4
+
+        return self.sp_projection - cost > sp_savings, cost
+
+    def action_if_affordable(self, game_state, action_type, location):
+        affordable, cost = affordable_SP(game_state, action_type, self.sp_savings)
+        if affordable and action_type[1] == 'build':
+            game_state.attempt_spawn(action_type[0], location)
+            self.sp_projection -= cost
+        elif affordable and action_type[1] == 'upgrade':
+            game_state.attempt_upgrade(location)
+            self.sp_projection -= cost
 
     # def starter_strategy(self, game_state):
     #     """
