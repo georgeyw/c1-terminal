@@ -101,10 +101,13 @@ class AlgoStrategy(gamelib.AlgoCore):
                 self.adv_toggle_offense(game_state)
 
 
-        total_sp = self.SP_FUNCTION(game_state)
-        if if total_sp > self.adv_convert_sp_threshold:
-            self.REMOVE_FUNCTION(game_state)
-            self.mode = 'advanced'
+        # replace SP_FUNCTION with a function that returns the total SP obtained if every structure is refunded
+        # replace REMOVE_FUNCTION with a function that refunds all existing structures
+
+        # total_sp = self.SP_FUNCTION(game_state)
+        # if if total_sp > self.adv_convert_sp_threshold:
+        #     self.REMOVE_FUNCTION(game_state)
+        #     self.mode = 'advanced'
 
 
 
