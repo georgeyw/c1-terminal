@@ -161,7 +161,8 @@ class AlgoStrategy(gamelib.AlgoCore):
                     gamelib.debug_write(str(unit[0].health) + ', ' + str(unit[0].max_health))
                     damaged_locations.append(location)
 
-        game_state.attempt_remove(damaged_locations)
+        if damaged_locations:
+            game_state.attempt_remove(damaged_locations)
 
 
 
