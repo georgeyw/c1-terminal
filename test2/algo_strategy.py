@@ -95,6 +95,7 @@ class AlgoStrategy(gamelib.AlgoCore):
                 self.adv_toggle_offense(game_state)
                 if self.offense == 'ready':
                     self.adv_spawn_offense(game_state)
+
             elif current_MP > self.offense_mp_threshold and current_SP > self.offense_sp_threshold and self.offense == 'off':
                 # reset the mp threshold to something random between 11 and 25
                 self.offense_mp_threshold = 10 + random.randint(1, 15)
@@ -160,15 +161,24 @@ class AlgoStrategy(gamelib.AlgoCore):
             game_state.attempt_remove(damaged_locations)
 
     def adv_maintain_defense(self, game_state):
-        game_state.attempt_spawn(WALL, ul.adv_primary_wall_locations)
-        game_state.attempt_spawn(TURRET, ul.adv_primary_turret_locations)
-        game_state.attempt_upgrade(ul.adv_primary_turret_locations)
-        game_state.attempt_spawn(WALL, ul.adv_secondary_wall_locations)
-        game_state.attempt_upgrade(ul.adv_upgrade_priority)
-        for location in ul.adv_support_locations:
-            game_state.attempt_spawn(SUPPORT, location)
-            game_state.attempt_upgrade(location)
+        if self.offense == 'off':
+            game_state.attempt_spawn(WALL, ul.adv_primary_wall_locations)
+            game_state.attempt_spawn(TURRET, ul.adv_primary_turret_locations)
+            game_state.attempt_upgrade(ul.adv_primary_turret_locations)
+            game_state.attempt_spawn(WALL, ul.adv_secondary_wall_locations)
+            game_state.attempt_upgrade(ul.adv_upgrade_priority)
+            for location in ul.adv_support_locations:
+                game_state.attempt_spawn(SUPPORT, location)
+                game_state.attempt_upgrade(location)
 
+        else:
+            game_state.attempt_spawn(WALL, ul.adv_offensive_wall_locations)
+            game_state.attempt_spawn(TURRET, ul.adv_primary_turret_locations)
+            game_state.attempt_upgrade(ul.adv_primary_turret_locations)
+            game_state.attempt_upgrade(ul.adv_upgrade_priority)
+            for location in ul.adv_support_locations:
+                game_state.attempt_spawn(SUPPORT, location)
+                game_state.attempt_upgrade(location)
 
 
 
@@ -200,7 +210,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
     def adv_spawn_offense(self, game_state):
-        game_state.attempt_spawn(SCOUT, [5, 8], 100)
+        game_state.attempt_spawn(SCOUT, [9, 4], 100)
 
 
     def adv_toggle_offense(self, game_state):
