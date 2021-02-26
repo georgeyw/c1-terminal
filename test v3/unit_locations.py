@@ -32,7 +32,7 @@ secondary_upgrade_priority = [
                               [0, 13], [27, 13],
                               [1, 12], [26, 12]]
 
-tertiary_support_locations = [[13, 8], [14, 8]
+tertiary_support_locations = [[13, 8], [14, 8],
                               [13, 7], [14, 7]]
 
 # adv config at 90+ SP

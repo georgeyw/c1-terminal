@@ -299,7 +299,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 	# Refund all units
     def refund_all(self, game_state):
         # all_locations = ul.primary_wall_locations + ul.primary_turret_locations + ul.secondary_turret_locations + ul.secondary_wall_locations + ul.tertiary_support_locations
-        game_state.attempt_remove(all_locations)
+        game_state.attempt_remove(self.all_locations)
 
     # compute SP after an action
     # action type: (UNIT, ACTION) e.g. ('turret', 'upgrade') or ('wall', 'build')
