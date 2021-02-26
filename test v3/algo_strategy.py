@@ -197,8 +197,8 @@ class AlgoStrategy(gamelib.AlgoCore):
         self.sp_projection = game_state.get_resource(0)
 
         for location in ul.adv_secondary_turret_locations:
-            action_if_affordable(game_state, (TURRET, 'build'), location)
-            action_if_affordable(game_state, (TURRET, 'upgrade'), location)
+            self.action_if_affordable(game_state, ('turret', 'build'), location)
+            self.action_if_affordable(game_state, ('turret', 'upgrade'), location)
             # affordable, cost = affordable_SP(game_state, ('turret', 'build'), self.sp_savings)
             # if affordable:
             #     game_state.attempt_spawn(TURRET, location)
@@ -208,14 +208,14 @@ class AlgoStrategy(gamelib.AlgoCore):
             #     game_state.attempt_upgrade(location)
             #     self.sp_projection -= cost
         for location in ul.adv_secondary_upgrade_priority:
-            action_if_affordable(game_state, (WALL, 'upgrade'), location)
+            self.action_if_affordable(game_state, ('turret', 'upgrade'), location)
             # affordable, cost = affordable_SP(game_state, ('wall', 'upgrade'), self.sp_savings)
             # if affordable:
             #     game_state.attempt_upgrade(location)
             #     self.sp_projection -= cost
         for location in ul.adv_secondary_support_locations:
-            action_if_affordable(game_state, (SUPPORT, 'build'), location)
-            action_if_affordable(game_state, (SUPPORT, 'upgrade'), location)
+            self.action_if_affordable(game_state, ('support', 'build'), location)
+            self.action_if_affordable(game_state, ('support', 'upgrade'), location)
             # affordable, cost = affordable_SP(game_state, ('support', 'build'), self.sp_savings)
             # if affordable:
             #     game_state.attempt_spawn(TURRET, location)
@@ -322,9 +322,14 @@ class AlgoStrategy(gamelib.AlgoCore):
         return self.sp_projection - cost > sp_savings, cost
 
     def action_if_affordable(self, game_state, action_type, location):
-        affordable, cost = affordable_SP(game_state, action_type, self.sp_savings)
+        affordable, cost = self.affordable_SP(game_state, action_type, self.sp_savings)
         if affordable and action_type[1] == 'build':
-            game_state.attempt_spawn(action_type[0], location)
+            if action_type[0] == 'turret':
+                game_state.attempt_spawn(TURRET, location)
+            elif action_type[0] == 'wall':
+                game_state.attempt_spawn(WALL, location)
+            elif action_type[0] == 'support':
+                game_state.attempt_spawn(SUPPORT, location)
             self.sp_projection -= cost
         elif affordable and action_type[1] == 'upgrade':
             game_state.attempt_upgrade(location)
