@@ -30,7 +30,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         self.mode = 'basic'
         self.offense = 'off'
         self.offense_sp_threshold = 10
-        self.offense_mp_threshold = 10 + randint(1, 15)
+        self.offense_mp_threshold = 10 + random.randint(1, 15)
         self.adv_convert_sp_threshold = 90
 
     def on_game_start(self, config):
@@ -97,21 +97,17 @@ class AlgoStrategy(gamelib.AlgoCore):
                     self.adv_spawn_offense(game_state)
             elif current_MP > self.offense_mp_threshold and current_SP > self.offense_sp_threshold and self.offense == 'off':
                 # reset the mp threshold to something random between 11 and 25
-                self.offense_mp_threshold = 10 + randint(1, 15)
+                self.offense_mp_threshold = 10 + random.randint(1, 15)
                 self.adv_toggle_offense(game_state)
 
 
-        # replace SP_FUNCTION with a function that returns the total SP obtained if every structure is refunded
+        # total_SP: a function that returns the total SP obtained if every structure is refunded
         # replace REMOVE_FUNCTION with a function that refunds all existing structures
 
-        # total_sp = self.SP_FUNCTION(game_state)
-        # if if total_sp > self.adv_convert_sp_threshold:
-        #     self.REMOVE_FUNCTION(game_state)
-        #     self.mode = 'advanced'
-
-
-
-
+        total_sp = self.total_SP(game_state)
+        if total_sp > self.adv_convert_sp_threshold:
+            self.refund_all(game_state)
+            self.mode = 'advanced'
 
 
     ##############################
@@ -219,6 +215,35 @@ class AlgoStrategy(gamelib.AlgoCore):
             game_state.attempt_spawn(WALL, ul.adv_offensive_config_removal)
             self.offense = 'off'
 
+
+	############################
+	#####Utility Functions######
+	############################
+
+	# Compute total SP if all structure refunded
+    def total_SP(self, game_state):
+        current = game_state.get_resource(SP)	
+        if self.mode == 'basic':
+            all_locations = ul.primary_wall_locations + ul.primary_turret_locations + ul.secondary_turret_locations + ul.secondary_wall_locations + ul.tertiary_support_locations
+        else: 		
+            all_locations = ul.adv_primary_wall_locations + ul.adv_primary_turret_locations + ul.adv_secondary_wall_locations + ul.adv_support_locations
+        refund = 0
+        for location in all_locations:
+            unit = game_state.game_map[location[0],location[1]]
+            if unit:
+                if unit[0].upgraded:
+                    refund += unit[0].cost[0]*0.90*(unit[0].health/unit[0].max_health)
+                else:
+                    refund += unit[0].cost[0]*0.97*(unit[0].health/unit[0].max_health) 
+        return round(current + refund,1)
+	
+
+	# Refund all units
+    def refund_all(self,game_state):
+        all_locations = ul.primary_wall_locations + ul.primary_turret_locations + ul.secondary_turret_locations + ul.secondary_wall_locations + ul.tertiary_support_locations
+        game_state.attempt_remove(all_locations)
+
+			
     # def starter_strategy(self, game_state):
     #     """
     #     For defense we will use a spread out layout and some interceptors early on.
