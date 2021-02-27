@@ -32,8 +32,8 @@ secondary_upgrade_priority = [
                               [0, 13], [27, 13],
                               [1, 12], [26, 12]]
 
-tertiary_support_locations = [[13, 7], [14, 7],
-                              [13, 6], [14, 6]]
+tertiary_support_locations = [[13, 8], [14, 8],
+                              [13, 7], [14, 7]]
 
 # adv config at 90+ SP
 adv_primary_wall_locations = [[0, 13], [1, 13], [2, 13], [1, 12], [2, 12], [3, 12],
@@ -71,7 +71,7 @@ adv_offensive_config_removal = [[11, 9], [11, 8]]
 # offensive swap only at 10+ SP
 adv_offensive_config_addition = [[10, 7], [11, 6], [12, 5], [13, 5], [14, 5], [15, 5], [13, 7], [14, 7], [16, 6], [18, 7]]
 
-adv_upgrade_priority = [[0, 13], [27, 13], [6, 8], [21, 8], [5, 9], [22, 9], [7, 9], [20, 9], [5, 10], [22, 10]]
+adv_upgrade_priority = [[0, 13], [27, 13], [6, 8], [21, 8], [5, 9], [22, 9], [7, 9], [20, 9]]
 
 # first build secondary turrets and then upgrade them
 # next upgrade wall locations
@@ -85,5 +85,5 @@ adv_secondary_support_locations = [[10, 5], [11, 4], [12, 3], [13, 2], [14, 2], 
 adv_secondary_upgrade_priority = [[1, 13], [26, 13], [2, 13], [25, 13], [3, 12], [24, 12], [4, 11], [23, 11], # 1, 2, 3, 4
                                   [13, 9], [14, 9], [12, 9], [15, 9], # 5
                                   [8, 9], [19, 9], [9, 9], [18, 9], # 6, 7
-                                  [10, 9], [17, 9], [11, 9], [16, 9], # 8, 9
+                                  [10, 9], [17, 9], [11, 9], [16, 9] # 8, 9
                                   ]
