@@ -27,7 +27,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         # seed = random.randrange(maxsize)
         # random.seed(seed)
         # gamelib.debug_write('Random seed: {}'.format(seed))
-        self.mode = 'basic'
+        self.mode = 'defense'
         self.offense = 'off'
         self.attack_type = 'dynamic'
         self.attack_side = 'left'
@@ -39,7 +39,6 @@ class AlgoStrategy(gamelib.AlgoCore):
         self.basic_convert_sp_threshold = 70
 
         self.sp_savings = 10
-
 
         self.all_locations = []
         for x in range(28):
@@ -81,7 +80,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         gamelib.debug_write('Performing turn {} of your custom algo strategy'.format(game_state.turn_number))
         game_state.suppress_warnings(True)  #Comment or remove this line to enable warnings.
 
-        self.initial_strategy_new_offense(game_state)
+        self.initial_strategy_new_offense_and_defense(game_state)
 
         game_state.submit_turn()
 
@@ -126,7 +125,7 @@ class AlgoStrategy(gamelib.AlgoCore):
                 if current_SP > self.offense_sp_threshold or self.offense_sp_counter > 5:
                     # reset the mp threshold
                     bonus_MP = game_state.turn_number//10
-                    self.offense_mp_threshold = mp_threshold_generator(game_state)
+                    self.offense_mp_threshold = 10 + random.randint(bonus_MP, 5 + 2*bonus_MP)
                     # reset the offense counter
                     self.offense_sp_counter = 0
 
@@ -193,6 +192,35 @@ class AlgoStrategy(gamelib.AlgoCore):
             self.mode = 'basic'
             self.offense = 'off'
 
+
+
+    def initial_strategy_new_offense_and_defense(self, game_state):
+
+        if self.offense == 'off':
+            self.maintain_defense_v2(game_state, ul.defense_build_order)
+            self.remove_damaged_structures(game_state)
+
+        current_SP = game_state.get_resource(0)
+        current_MP = game_state.get_resource(1)
+
+        # offense
+        if game_state.turn_number == 1:
+            self.spawn_offense_v2(game_state)
+        elif self.offense != 'off':
+            self.spawn_new_offense(game_state, attack_type = self.attack_type, side = self.attack_side)
+            self.toggle_new_offense(game_state, side = self.attack_side)
+        elif current_MP > self.offense_mp_threshold:
+            if random.random() < 0.5:
+                self.attack_side = 'left'
+            else:
+                self.attack_side = 'right'
+
+            bonus_MP = game_state.turn_number//10
+            self.offense_mp_threshold = mp_threshold_generator(game_state)
+
+            self.toggle_new_offense(game_state, side = self.attack_side)
+
+
     ###########################
     ######### DEFENSE #########
     ###########################
@@ -202,10 +230,14 @@ class AlgoStrategy(gamelib.AlgoCore):
         for current_command in build_commands:
             action_type = current_command[0]
             locations = current_command[1]
-            if action_type[1] == 'build':
-                game_state.attempt_spawn(unit_dictionary[action_type[0]], locations)
-            elif action_type[1] == 'upgrade':
-                game_state.attempt_upgrade(locations)
+            for location in locations:
+                if action_type[1] == 'build':
+                    if action_type[0] == 'turret':
+                        self.replace_wall_with_turret(game_state,location)
+                    else:
+                        game_state.attempt_spawn(unit_dictionary[action_type[0]], location)
+                elif action_type[1] == 'upgrade':
+                    game_state.attempt_upgrade(locations)
 
     def maintain_excess_defense_v2(self, game_state, build_commands):
         for current_command in build_commands:
@@ -220,7 +252,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         for location in self.all_locations:
             unit = game_state.game_map[location[0], location[1]]
             if unit:
-                if unit[0].health < unit[0].max_health*0.75 and unit[0].health != 60 and unit[0].health != 1:
+                if unit[0].health < unit[0].max_health and unit[0].health != 60 and unit[0].health != 1:
                     damaged_locations.append(location)
 
         if damaged_locations:
@@ -399,24 +431,25 @@ class AlgoStrategy(gamelib.AlgoCore):
         affordable, cost = self.affordable_SP(game_state, action_type, self.sp_savings)
         if affordable and action_type[1] == 'build':
             if action_type[0] == 'turret':
-                unit = game_state.game_map[location[0],location[1]]
-                if unit:
-                    if unit[0].unit_type  == 'FF':
-                        #remove the wall if there is a wall
-                        game_state.attempt_remove(location)
-                        #remove location from wall list
-                        try:
-                            ul.adv_primary_wall_locations.remove(location)
-                        except:
-                            pass
-                # Build turret at adv_secondary_turret_locations
-                game_state.attempt_spawn(TURRET, location)
+                self.replace_wall_with_turret(game_state,location)
             elif action_type[0] == 'wall':
                 game_state.attempt_spawn(WALL, location)
             elif action_type[0] == 'support':
                 game_state.attempt_spawn(SUPPORT, location)
         elif affordable and action_type[1] == 'upgrade':
             game_state.attempt_upgrade(location)
+
+    # Replace an existing wall with a turret
+    def replace_wall_with_turret(self,game_state,location):
+        unit = game_state.game_map[location[0],location[1]]
+        if unit:
+            if unit[0].unit_type == 'FF':
+                game_state.attempt_remove(location)
+                #remove location from wall list
+                for i in range(len(ul.defense_wall_locations)):
+                   if location in ul.defense_wall_locations[i]:
+                      ul.defense_wall_locations[i].remove(location)
+        game_state.attempt_spawn(TURRET,location)
 
 
 

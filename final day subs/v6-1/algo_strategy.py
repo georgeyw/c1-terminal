@@ -49,7 +49,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 
     def mp_threshold_generator(self, game_state):
         bonus_MP = game_state.turn_number//10
-        return 12 + bonus_MP * 3
+        return 10 + bonus_MP * 3
 
     def on_game_start(self, config):
         """
