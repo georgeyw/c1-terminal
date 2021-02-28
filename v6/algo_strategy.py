@@ -49,7 +49,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 
     def mp_threshold_generator(self, game_state):
         bonus_MP = game_state.turn_number//10
-        return 10 + bonus_MP * 3
+        return 12 + bonus_MP * 3
 
     def on_game_start(self, config):
         """
@@ -259,9 +259,11 @@ class AlgoStrategy(gamelib.AlgoCore):
             path = 'closed'
 
         if attack_type == 'dynamic':
+            if random.random() < 0.3:
+                path = 'closed'
             if path == 'open':
                 scout_count = game_state.number_affordable(SCOUT)
-                if scout_count >= 20:
+                if scout_count >= 15:
                     game_state.attempt_spawn(SCOUT, location_1, min(scout_count//2, 15))
                 game_state.attempt_spawn(SCOUT, location_2, 100)
             elif path == 'closed':
