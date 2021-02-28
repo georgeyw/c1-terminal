@@ -138,15 +138,6 @@ adv_excess_build_order = [[('turret', 'build'), adv_secondary_turret_locations],
                           [('support', 'build'), adv_tertiary_support_locations],
                           [('support', 'upgrade'), adv_tertiary_support_locations]]
 
-# example_build_order [[(unit_type, action_type), LIST OF LOCATIONS IN ORDER OF PRIORITY],
-                        # ... one for each step of the build order ]
-
-# 1. [('turret', 'build'), first 5 locations]
-# 2. [('turret', 'upgrade'), first 5 locations]
-# 3. [('wall', 'build'), 28 wall locations, ordered by priority, highest to lowest]
-# 4. [('wall', 'upgrade'), 28 wall locations ordered by upgrade priority]
-# 5 and on. other turret stuff
-
 ####################
 ##### BASIC V2 #####
 ####################
@@ -208,33 +199,6 @@ basic_v2_build_order = [[('wall', 'build'), [[0, 13], [1, 12], [2, 11], [3, 10],
 all_wall_locations = [adv_primary_wall_locations, adv_secondary_wall_locations, adv_offensive_wall_locations]
 
 
-##################
-### OFFENSE V2 ###
-##################
-
-offense_config_walls = [[14, 5], [14, 6], [14, 7], [14, 8], [14, 9], [14, 10], [14, 11], [14, 12]]
-
-offense_config_supports = [[14, 4], [14, 3], [14, 2], [14, 1], [14, 0],
-                            [13, 2], [11, 2], [11, 3], [12, 4],
-                            [15, 1], [15, 2], [15, 3], [15, 4],
-                            [16, 2], [16, 3]]
-
-offense_config_walls_reversed = [[13, 5], [13, 6], [13, 7], [13, 8], [13, 9], [13, 10], [13, 11], [13, 12]]
-
-offense_config_supports_reversed = [[13, 4], [13, 3], [13, 2], [13, 1], [13, 0],
-                                    [14, 2], [16, 2], [16, 3], [15, 4],
-                                    [12, 1], [12, 2], [12, 3], [12, 4],
-                                    [11, 2], [11, 3]]
-
-offense_build_order = [[('wall', 'build'), offense_config_walls],
-                        [('support', 'build'), offense_config_supports],
-                        [('support', 'upgrade'), offense_config_supports]]
-
-offense_build_order_reversed = [[('wall', 'build'), offense_config_walls_reversed],
-                                [('support', 'build'), offense_config_supports_reversed],
-                                [('support', 'upgrade'), offense_config_supports_reversed]]
-
-
 
 ###################################
 ######## NEW DEFENSE ##############
@@ -242,7 +206,7 @@ offense_build_order_reversed = [[('wall', 'build'), offense_config_walls_reverse
 
 defense_wall_locations=[
                        [0,13],[1,12],[27,13],[26,12], #round 1 build
-                       [2,12],[25,12], [8,11], [13,11], [19,11],
+                       [2,12],[25,12], [8,11], [13,11], [19,11], 
                        [3,12],[24,12],[4,12],[23,12], [5,11], [22,11],
                        [6,10],[21,10],[7,11],[20,11],[9,11],
                        [18,11],[12,11],[14,11],[17,11],[10,11],
@@ -257,6 +221,12 @@ defense_wall_upgrade_priority =[
                                [25,12],[9,11],[18,11],[10,11],[17,11],
                                [11,11],[16,11],[12,11],[14,11],[15,11]
 ]
+
+defense_secondary_wall_locations =[
+                                  [4,10],[5,9],[6,9],[7,9],
+                                  [22,10],[21,9],[20,9],[19,9]
+]
+
 
 defense_primary_turret_locations =[[2,11],[8,10],[19,10],[25,11],[13,10]]
 
@@ -276,6 +246,8 @@ defense_build_order=[ [('turret','build'),defense_primary_turret_locations],
                       [('wall','upgrade'),defense_wall_upgrade_priority],
                       [('turret','build'),defense_secondary_turret_locations],
                       [('turret','upgrade'),defense_secondary_turret_locations],
+                      [('wall','build'),defense_secondary_wall_locations],
+                      [('wall','upgrade',defense_secondary_wall_locations)],
                       [('turret','build'),defense_tertiary_turret_locations],
                       [('turret','upgrade'),defense_tertiary_turret_locations],
                       [('turret','build'),defense_remaining_turret_locations],
