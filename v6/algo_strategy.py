@@ -49,7 +49,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 
     def mp_threshold_generator(self, game_state):
         bonus_MP = game_state.turn_number//10
-        return 12 + bonus_MP * 3
+        return 10 + bonus_MP * 3
 
     def on_game_start(self, config):
         """
@@ -126,7 +126,7 @@ class AlgoStrategy(gamelib.AlgoCore):
                 if current_SP > self.offense_sp_threshold or self.offense_sp_counter > 5:
                     # reset the mp threshold
                     bonus_MP = game_state.turn_number//10
-                    self.offense_mp_threshold = mp_threshold_generator(game_state)
+                    self.offense_mp_threshold = self.mp_threshold_generator(game_state)
                     # reset the offense counter
                     self.offense_sp_counter = 0
 
@@ -178,7 +178,7 @@ class AlgoStrategy(gamelib.AlgoCore):
                 self.attack_side = 'right'
 
             bonus_MP = game_state.turn_number//10
-            self.offense_mp_threshold = mp_threshold_generator(game_state)
+            self.offense_mp_threshold = self.mp_threshold_generator(game_state)
 
             self.toggle_new_offense(game_state, side = self.attack_side)
 

@@ -32,7 +32,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         self.attack_type = 'dynamic'
         self.attack_side = 'left'
 
-        self.interceptors = 'on'
+        self.interceptors = 'off'
 
         self.offense_sp_threshold = 10
         self.offense_sp_counter = 0
@@ -179,7 +179,7 @@ class AlgoStrategy(gamelib.AlgoCore):
                 self.attack_side = 'right'
 
             bonus_MP = game_state.turn_number//10
-            self.offense_mp_threshold = mp_threshold_generator(game_state)
+            self.offense_mp_threshold = self.mp_threshold_generator(game_state)
 
             self.toggle_new_offense(game_state, side = self.attack_side)
 
@@ -220,7 +220,7 @@ class AlgoStrategy(gamelib.AlgoCore):
                 self.attack_side = 'right'
 
             bonus_MP = game_state.turn_number//10
-            self.offense_mp_threshold = mp_threshold_generator(game_state)
+            self.offense_mp_threshold = self.mp_threshold_generator(game_state)
 
             self.toggle_new_offense(game_state, side = self.attack_side)
 
@@ -449,7 +449,7 @@ class AlgoStrategy(gamelib.AlgoCore):
             game_state.attempt_upgrade(location)
 
     # Replace an existing wall with a turret
-    def replace_wall_with_turret(self,game_state,location):
+    def replace_wall_with_turret(self, game_state, location):
         unit = game_state.game_map[location[0],location[1]]
         if unit:
             if unit[0].unit_type == 'FF':

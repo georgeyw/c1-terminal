@@ -100,6 +100,12 @@ adv_offense_build_order = [[('wall', 'build'), adv_offensive_wall_locations],
                             [('support', 'build'), adv_primary_support_locations],
                             [('support', 'upgrade'), adv_primary_support_locations]]
 
+adv_new_build_order = [[('wall', 'build'), adv_primary_wall_locations],
+                    [('turret', 'build'), adv_primary_turret_locations],
+                    [('turret', 'upgrade'), adv_primary_turret_locations],
+                    [('wall', 'build'), adv_secondary_wall_locations],
+                    [('wall', 'upgrade'), adv_upgrade_priority]]
+
 
 
 
@@ -138,14 +144,14 @@ adv_excess_build_order = [[('turret', 'build'), adv_secondary_turret_locations],
                           [('support', 'build'), adv_tertiary_support_locations],
                           [('support', 'upgrade'), adv_tertiary_support_locations]]
 
-# example_build_order [[(unit_type, action_type), LIST OF LOCATIONS IN ORDER OF PRIORITY],
-                        # ... one for each step of the build order ]
-
-# 1. [('turret', 'build'), first 5 locations]
-# 2. [('turret', 'upgrade'), first 5 locations]
-# 3. [('wall', 'build'), 28 wall locations, ordered by priority, highest to lowest]
-# 4. [('wall', 'upgrade'), 28 wall locations ordered by upgrade priority]
-# 5 and on. other turret stuff
+adv_new_excess_build_order = [[('turret', 'build'), adv_secondary_turret_locations],
+                          [('turret', 'upgrade'), adv_secondary_turret_locations],
+                          [('wall', 'upgrade'), adv_secondary_upgrade_priority],
+                          [('support', 'build'), adv_secondary_support_locations],
+                          [('support', 'upgrade'), adv_secondary_support_locations],
+                          [('turret', 'build'), adv_tertiary_turret_locations],
+                          [('turret', 'upgrade'), adv_tertiary_turret_locations],
+                          [('wall', 'upgrade'), adv_tertiary_turret_locations]]
 
 ####################
 ##### BASIC V2 #####
@@ -205,7 +211,116 @@ basic_v2_build_order = [[('wall', 'build'), [[0, 13], [1, 12], [2, 11], [3, 10],
                                     ]]
 
 
+basic_v2_new_build_order = [[('wall', 'build'), [[0, 13], [1, 12], [2, 11], [3, 10], [4, 9], [5, 8],
+                                            [6, 7], [7, 7], [8, 7], [9, 7], [10, 7], [11, 7], [12, 7], [13, 7], [14, 7], [15, 7], [16, 7], [17, 7], [18, 7],
+                                            [19, 8], [20, 9], [21, 10], [22, 12], [25, 12], [26, 12], [27, 13]]
+                                            ],
+                      [('turret', 'build'), [[22, 11], [25, 11]]
+                                            ],
+                      [('turret', 'upgrade'), [[22, 11]]
+                                            ],
+                      [('wall', 'build'), [[21, 12], [24, 12]]
+                                            ],
+                      [('turret', 'build'), [[21, 11], [24, 11]]
+                                            ],
+                      [('wall', 'build'), [[20, 11]]
+                                            ],
+                      [('turret', 'upgrade'), [[25, 11]]
+                                            ],
+                      [('wall', 'upgrade'), [[0, 13], [1, 12], [2, 11], [3, 10], [21, 12], [27, 13], [25, 12]]
+                                            ],
+                      [('turret', 'upgrade'), [[21, 11], [24, 11]]
+                                            ],
+                      [('wall', 'upgrade'), [[22, 12], [26, 12], [24, 12], [20, 11], [24, 10], [23, 9], [22, 8]]
+                                            ],
+# builds past this point should only really happen if conversion back occurs
+                        [('wall', 'build'), [[20, 12], [19, 11], [20, 10]]
+                                    ],
+                        [('wall', 'upgrade'), [[20, 12], [19, 11]]
+                                    ],
+                        [('turret', 'build'), [[20, 11]]
+                                    ],
+                        [('turret', 'upgrade'), [[20, 11]]
+                                    ],
+                        [('turret', 'build'), [[24, 10]]
+                                    ],
+                        [('turret', 'upgrade'), [[24, 10]]
+                                    ],
+                        [('turret', 'build'), [[21, 10]]
+                                    ],
+                        [('turret', 'upgrade'), [[21, 10]]
+                                    ],
+                        [('turret', 'build'), [[25, 12]]
+                                    ],
+                        [('turret', 'upgrade'), [[25, 12]]
+                                    ]]
+
+
+
 all_wall_locations = [adv_primary_wall_locations, adv_secondary_wall_locations, adv_offensive_wall_locations]
+
+
+
+###################################
+######## NEW DEFENSE ##############
+###################################
+
+defense_wall_locations=[
+                       [0,13],[1,12],[27,13],[26,12], #round 1 build
+                       [2,12],[25,12], [8,11], [13,11], [19,11],
+                       [3,12],[24,12],[4,12],[23,12], [5,11], [22,11],
+                       [6,10],[21,10],[7,11],[20,11],[9,11],
+                       [18,11],[12,11],[14,11],[17,11],[10,11],
+                       [11,11],[15,11],[16,11]
+]
+
+defense_wall_upgrade_priority =[
+                               [0,13],[27,13],[1,12],[26,12],
+                               [8,11],[13,11],[19,11],[6,10],[21,10],
+                               [5,11],[22,11],[4,12],[23,12],
+                               [7,11],[20,11],[4,12],[24,12],[2,12],
+                               [25,12],[9,11],[18,11],[10,11],[17,11],
+                               [11,11],[16,11],[12,11],[14,11],[15,11]
+]
+
+defense_secondary_wall_locations =[
+                                  [4,10],[5,9],[6,9],[7,9],
+                                  [22,10],[21,9],[20,9],[19,9]
+]
+
+
+defense_primary_turret_locations =[[2,11],[8,10],[19,10],[25,11],[13,10]]
+
+
+defense_secondary_turret_locations = [[3,11],[24,11],[14,10],[9,10],[18,10]]
+
+defense_tertiary_turret_locations = [[12,10],[15,10]]
+
+defense_remaining_turret_locations =[
+                                    [4,11],[23,11],[7,10],[20,10],
+                                    [10,10],[17,10],[11,10],[16,10]
+]
+
+# defense_tertiary_turret_locations = [[1,12],[26,12],[12,10],[15,10]]
+#
+# defense_remaining_turret_locations =[
+#                                     [4,11],[23,11],[2,12],[25,12],[7,10],[20,10],
+#                                     [10,10],[17,10],[11,10],[16,10]
+# ]
+
+defense_build_order=[ [('turret','build'),defense_primary_turret_locations],
+                      [('turret','upgrade'),defense_primary_turret_locations],
+                      [('wall','build'),defense_wall_locations],
+                      [('wall','upgrade'),defense_wall_upgrade_priority],
+                      [('turret','build'),defense_secondary_turret_locations],
+                      [('turret','upgrade'),defense_secondary_turret_locations],
+                      [('wall','build'),defense_secondary_wall_locations],
+                      [('wall','upgrade'),defense_secondary_wall_locations],
+                      [('turret','build'),defense_tertiary_turret_locations],
+                      [('turret','upgrade'),defense_tertiary_turret_locations],
+                      [('turret','build'),defense_remaining_turret_locations],
+                      [('turret','upgrade'),defense_remaining_turret_locations],
+]
 
 
 ##################
@@ -233,51 +348,3 @@ offense_build_order = [[('wall', 'build'), offense_config_walls],
 offense_build_order_reversed = [[('wall', 'build'), offense_config_walls_reversed],
                                 [('support', 'build'), offense_config_supports_reversed],
                                 [('support', 'upgrade'), offense_config_supports_reversed]]
-
-
-
-###################################
-######## NEW DEFENSE ##############
-###################################
-
-defense_wall_locations=[
-                       [0,13],[1,12],[27,13],[26,12], #round 1 build
-                       [2,12],[25,12], [8,11], [13,11], [19,11],
-                       [3,12],[24,12],[4,12],[23,12], [5,11], [22,11],
-                       [6,10],[21,10],[7,11],[20,11],[9,11],
-                       [18,11],[12,11],[14,11],[17,11],[10,11],
-                       [11,11],[15,11],[16,11]
-]
-
-defense_wall_upgrade_priority =[
-                               [0,13],[27,13],[1,12],[26,12],
-                               [8,11],[13,11],[19,11],[6,10],[21,10],
-                               [5,11],[22,11],[4,12],[23,12],
-                               [7,11],[20,11],[4,12],[24,12],[2,12],
-                               [25,12],[9,11],[18,11],[10,11],[17,11],
-                               [11,11],[16,11],[12,11],[14,11],[15,11]
-]
-
-defense_primary_turret_locations =[[2,11],[8,10],[19,10],[25,11],[13,10]]
-
-
-defense_secondary_turret_locations = [[3,11],[24,11],[14,10],[9,10],[18,10]]
-
-defense_tertiary_turret_locations = [[1,12],[26,12],[12,10],[15,10]]
-
-defense_remaining_turret_locations =[
-                                    [4,11],[23,11],[2,12],[25,12],[7,10],[20,10],
-                                    [10,10],[17,10],[11,10],[16,10]
-]
-
-defense_build_order=[ [('turret','build'),defense_primary_turret_locations],
-                      [('turret','upgrade'),defense_primary_turret_locations],
-                      [('wall','build'),defense_wall_locations],
-                      [('wall','upgrade'),defense_wall_upgrade_priority],
-                      [('turret','build'),defense_secondary_turret_locations],
-                      [('turret','upgrade'),defense_secondary_turret_locations],
-                      [('turret','build'),defense_tertiary_turret_locations],
-                      [('turret','upgrade'),defense_tertiary_turret_locations],
-                      [('turret','build'),defense_remaining_turret_locations],
-                      [('turret','upgrade'),defense_remaining_turret_locations],
-]
