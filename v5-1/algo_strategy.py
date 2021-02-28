@@ -293,10 +293,9 @@ class AlgoStrategy(gamelib.AlgoCore):
                         #remove the wall if there is a wall
                         game_state.attempt_remove(location)
                         #remove location from wall list
-                        try:
-                            ul.adv_primary_wall_locations.remove(location)
-                        except:
-                            pass
+                        for i in range(len(ul.all_wall_locations):
+                            if location in ul.all_wall_locations[i]:
+                               ul.all_wall_locations[i].remove(location)
                 # Build turret at adv_secondary_turret_locations
                 game_state.attempt_spawn(TURRET, location)
             elif action_type[0] == 'wall':
