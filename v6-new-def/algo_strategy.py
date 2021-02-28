@@ -32,6 +32,8 @@ class AlgoStrategy(gamelib.AlgoCore):
         self.attack_type = 'dynamic'
         self.attack_side = 'left'
 
+        self.interceptors = 'on'
+
         self.offense_sp_threshold = 10
         self.offense_sp_counter = 0
         self.offense_mp_threshold = 7 + random.randint(0, 5)
@@ -204,7 +206,9 @@ class AlgoStrategy(gamelib.AlgoCore):
         current_MP = game_state.get_resource(1)
 
         # offense
-        if game_state.turn_number == 1:
+        if self.interceptors == 'on' and game_state.turn_number < 10:
+            interceptor_defenders(game_state)
+        elif game_state.turn_number == 1:
             self.spawn_offense_v2(game_state)
         elif self.offense != 'off':
             self.spawn_new_offense(game_state, attack_type = self.attack_type, side = self.attack_side)
@@ -224,6 +228,11 @@ class AlgoStrategy(gamelib.AlgoCore):
     ###########################
     ######### DEFENSE #########
     ###########################
+
+    def interceptor_defenders(self, game_state):
+        locations = [[3, 10], [8, 5], [19, 5], [24, 10]]
+        for location in locations:
+            game_state.attempt_spawn(INTERCEPTOR, location, 1)
 
     def maintain_defense_v2(self, game_state, build_commands):
         unit_dictionary = {'wall': WALL, 'turret': TURRET, 'support': SUPPORT}
