@@ -194,3 +194,6 @@ basic_v2_build_order = [[('wall', 'build'), [[0, 13], [1, 12], [2, 11], [3, 10],
                                     ],
                         [('support', 'upgrade'), [[12, 4], [12, 3], [13, 3], [13, 2]]
                                     ]]
+
+
+all_wall_locations = [adv_primary_wall_locations, adv_secondary_wall_locations, adv_offensive_wall_locations]
