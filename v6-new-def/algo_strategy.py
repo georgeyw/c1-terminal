@@ -207,7 +207,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 
         # offense
         if self.interceptors == 'on' and game_state.turn_number < 10:
-            interceptor_defenders(game_state)
+            self.interceptor_defenders(game_state)
         elif game_state.turn_number == 1:
             self.spawn_offense_v2(game_state)
         elif self.offense != 'off':
