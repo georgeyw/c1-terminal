@@ -1,9 +1,13 @@
-# Starter Algo
+# Version 4_1 of Algo
+# Updated version of the v4 algo. 
 
+
+# Note: this file is modified from the README.md file provided by organizer of tournament.
+ 
 ## File Overview
 
 ```
-starter-algo
+test_v4_1
  │
  ├──gamelib
  │   ├──__init__.py
@@ -19,24 +23,21 @@ starter-algo
  ├──documentation
  ├──README.md
  ├──run.ps1
+ ├──unit_locations.py
  └──run.sh
 ```
 
 ### Creating an Algo
 
-To create an algo, simply modify the `algo_strategy.py` file. 
-To upload to terminal, upload the entire python-algo folder.
+The `algo_strategy.py` file is the file holding the main algorithm.
+The 'unit_location.py' file is the file holding all location coordinates and the building and  ordering information used in 'algo_strategy.py'.  
+To upload to terminal, upload the entire test_v4_1 folder.
 
 ### `algo_strategy.py`
 
-This file contains the `AlgoStrategy` class which you should modify to implement
-your strategy.
+This file contains the `AlgoStrategy` class modified to implement our strategy.
 
-At a minimum you must implement the `on_turn` method which handles responding to
-the game state for each turn. Refer to the `starter_strategy` method for inspiration.
-
-If your algo requires initialization then you should also implement the
-`on_game_start` method and do any inital setup there.
+The `on_game_start` method is modified for inital setup.
 
 ### `documentation`
 
@@ -95,7 +96,7 @@ Helper functions and values that do not yet have a better place to live.
 
 ## Strategy Overview
 
-The starter strategy is designed to highlight a few common `GameMap` functions
-and give the user a functioning example to work with. It's gameplan is to 
-draw the C1 logo, place turrets in its corners, and randomly spawn factories
-and units.
+Start with a 'basic' defensive configuration with mild scout attacks. Once accumulated enough SP (threshold 90), switch to an advanced configuration. If SP drops below 70, switch back to basic configuration. 
+
+
+Difference from v4: 'rand_offense_location' function allows offense units to spawn randomly from left or right. 
